@@ -27,7 +27,7 @@ Example:
 ```SQL
 # Commend used as heading
 SELECT * FROM example
-WHERE something = "test";
+WHERE something = 'test';
 
 # Commment used as heading
 SELECT some_column FROM example;
