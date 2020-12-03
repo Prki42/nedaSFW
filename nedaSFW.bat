@@ -1,2 +1,2 @@
 @echo off
-python "{PUT YOUR SCRIPT (nedSFW.py) PATH HERE}" %*
+python "{PUT YOUR SCRIPT (nedaSFW.py) PATH HERE}" %*
