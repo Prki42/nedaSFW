@@ -3,6 +3,7 @@ from mysql.connector import errorcode
 import config
 import click
 from os import path, getcwd
+import subprocess
 from pyfiglet import Figlet
 from db import DatabaseConnection
 from latex import LatexCreator
@@ -26,7 +27,7 @@ def about():
     click.secho("Neda Submission File Workaround - NedaSFW")
     click.secho("Executes SQL queries from .sql file and creates")
     click.secho(".tex file containing results and queries.\n")
-    click.secho("Author: Aleksa Prtenjača")
+    click.secho("Author: Aleksa Prtenjača \u00A9")
     click.secho("Github: www.github.com/Prki42\n")
 
 @main.command()
@@ -34,7 +35,8 @@ def about():
 @click.option('--temp', '-t', required=False, help="Custom LaTeX template")
 @click.option('--output', '-o', required=True, help="File to output LaTeX code")
 @click.option('--db', '-d', type=bool, default=False, is_flag=True, required=False, help="Use existing database config file")
-def generate(sql, temp, output, db):
+@click.option('--compilePDF', '-c', type=bool, default=False, is_flag=True, required=False, help="Compile to pdf using 'pdflatex'")
+def generate(sql, temp, output, db, compilepdf):
     """
     Generates LaTeX file
     """
@@ -42,19 +44,21 @@ def generate(sql, temp, output, db):
     dbConfig = None
     if not temp:
         if not path.exists(defaultTemplatePath):
-            click.secho("Default template doesn't exist")
+            click.secho("[-] Default template doesn't exist")
             return
     elif not path.exists(temp):
-        click.secho("Template file doesn't exist")
+        click.secho("[-] Template file doesn't exist")
         return
 
     if not path.exists(sql):
-        click.secho("SQL file doesn't exist")
+        click.secho("[-] SQL file doesn't exist")
         return
+
+    output = output.replace("\\", "/")
 
     if db:
         if not path.exists('db_config.json'):
-            click.secho("There is no db_config.json in current directory")
+            click.secho("[-] There is no db_config.json in current directory")
             return
         dbConfig = config.readConfig("db_config.json")
     else:
@@ -62,14 +66,14 @@ def generate(sql, temp, output, db):
     
     try:
         mysqldb = DatabaseConnection(dbConfig)
-        print("[+] Connected to database")
+        click.secho("[+] Connected to database")
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Bad credentials")
+            click.secho("[-] Bad credentials")
         elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            print("Database doesn't exist")
+            click.secho("[-] Database doesn't exist")
         else:
-            print(err)
+            print("\tError:", err)
         return
     
     try:
@@ -77,8 +81,21 @@ def generate(sql, temp, output, db):
         codeWrap = "\\begin{sqlCode}\n%s\n\\end{sqlCode}\n"
         latexWriter.write(codeWrap, "...template...")
         print("[+] Successfully written data to %s" % (output))
+        if compilepdf:
+            try:
+                pdfOutput = "/".join(output.split("/")[:-1])
+                if pdfOutput.strip() == "" : pdfOutput = "."
+                compileProcess = subprocess.Popen(["pdflatex", "-interaction=nonstopmode", "-output-directory", pdfOutput, output], shell=False, stdout=subprocess.DEVNULL)
+                compileProcess.wait()
+                if compileProcess.returncode == 0:
+                    click.secho("[+] Successfully compiled to PDF")
+                else:
+                    click.secho("[-] Failed to compile to PDF")
+            except OSError as err:
+                click.secho("[-] Command 'pdflatex' not found")
+                print("\tError:", err)
     except Exception as e:
-        print(e)
+        print("\tError:", e)
     try: mysqldb.kill()
     except : pass
     

@@ -14,7 +14,7 @@ class LatexCreator:
         for line in sqlFile:
             if line.isspace() : continue
             if line.startswith("#"):
-                currNum = line[1:]
+                currNum = line[1:].strip()
                 continue
             queryBuffer += line
             if line.endswith(";\n") or line.endswith(";"):
