@@ -41,6 +41,9 @@ Create a directory somwhere on your computer and copy `nedaSFW.bat` there. In `n
 with path to `src/nedaSFW.py` script on your computer.
 Finally, edit PATH environmental variable and add folder containing `nedaSFW.bat`. Now script can be used by calling `nedaSFW` from cmd or Powershell from any directory.
 
+## Compile to .pdf when generating .tex
+If `--compilePDF` (`-c`) flag is used when running `generate` command and `pdflatex` is installed .pdf will be generated.
+
 ## Usage example
 **-t option in generate command still not *(completely)* usable**
 
@@ -52,4 +55,9 @@ nedaSFW generate -s sqlFile.sql -o texFile.tex
 Generate .tex output and use already created `db_config.json`
 ```
 nedaSFW generate -s sqlFile.sql -o texFile.tex -d
+```
+
+Same as above, but .pdf is also generated
+```
+nedaSFW generate -s sqlFile.sql -o texFile.tex -d -c
 ```
