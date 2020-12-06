@@ -35,13 +35,17 @@ def about():
 @click.option('--temp', '-t', required=False, help="Custom LaTeX template")
 @click.option('--output', '-o', required=True, help="File to output LaTeX code")
 @click.option('--db', '-d', type=bool, default=False, is_flag=True, required=False, help="Use existing database config file")
+@click.option('--projectConfig', '-p', type=bool, default=False, is_flag=True, required=False, help="Use existing project config")
 @click.option('--compilePDF', '-c', type=bool, default=False, is_flag=True, required=False, help="Compile to pdf using 'pdflatex'")
-def generate(sql, temp, output, db, compilepdf):
+def generate(sql, temp, output, db, projectconfig, compilepdf):
     """
     Generates LaTeX file
     """
     templateFilePath = defaultTemplatePath
     dbConfig = None
+    projConfig = None
+
+    #TODO Can't be used rn except it follows the same rules as example template... Fix???
     if not temp:
         if not path.exists(defaultTemplatePath):
             click.secho("[-] Default template doesn't exist")
@@ -56,13 +60,25 @@ def generate(sql, temp, output, db, compilepdf):
 
     output = output.replace("\\", "/")
 
+    #TODO Database config and project config handling is copy-paste, refactor...
+
+    # Handling database config
     if db:
         if not path.exists('db_config.json'):
             click.secho("[-] There is no db_config.json in current directory")
             return
-        dbConfig = config.readConfig("db_config.json")
+        dbConfig = config.readConfig("db_config.json", config.validateDatabaseConfig)
     else:
         dbConfig = config.createDatabaseConfig("db_config.json")
+
+    # Handling project config
+    if projectconfig:
+        if not path.exists('proj_config.json'):
+            click.secho("[-] There is no proj_config.json in current directory")
+            return
+        projConfig = config.readConfig("proj_config.json", config.validateProjectConfig)
+    else:
+        projConfig = config.createProjectConfig("proj_config.json")
     
     try:
         mysqldb = DatabaseConnection(dbConfig)
@@ -77,16 +93,18 @@ def generate(sql, temp, output, db, compilepdf):
         return
     
     try:
-        latexWriter = LatexCreator(mysqldb, sql, templateFilePath, output)
+        latexWriter = LatexCreator(mysqldb, sql, templateFilePath, output, projConfig)
         codeWrap = "\\begin{sqlCode}\n%s\n\\end{sqlCode}\n"
         latexWriter.write(codeWrap, "...template...")
         print("[+] Successfully written data to %s" % (output))
         if compilepdf:
+            # OSError will be raised if called command in Popen is not available
             try:
                 pdfOutput = "/".join(output.split("/")[:-1])
                 if pdfOutput.strip() == "" : pdfOutput = "."
                 compileProcess = subprocess.Popen(["pdflatex", "-interaction=nonstopmode", "-output-directory", pdfOutput, output], shell=False, stdout=subprocess.DEVNULL)
                 compileProcess.wait()
+                # Code 0 means success
                 if compileProcess.returncode == 0:
                     click.secho("[+] Successfully compiled to PDF")
                 else:

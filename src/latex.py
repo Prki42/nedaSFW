@@ -1,17 +1,20 @@
 from db import DatabaseConnection
 
+#TODO find a way to generalize templating
 class LatexCreator:
-    def __init__(self, mysqldb: DatabaseConnection, sqlPath: str, templatePath: str, outputPath: str):
+    def __init__(self, mysqldb: DatabaseConnection, sqlPath: str, templatePath: str, outputPath: str, projConfig: dict):
         self.mysqldb = mysqldb
         self.sqlPath = sqlPath
         self.templatePath = templatePath
         self.outputPath = outputPath
+        self.projConfig = projConfig
 
     def _extractFromSql(self, sqlFile) -> dict:
         queryDict = {}
         currNum = ""
         queryBuffer = ""
         for line in sqlFile:
+            line = line.lstrip()
             if line.isspace() : continue
             if line.startswith("#"):
                 currNum = line[1:].strip()
@@ -51,8 +54,22 @@ class LatexCreator:
         sqlFile = open(self.sqlPath, "r", encoding="utf-8")
         templateFile = open(self.templatePath, "r", encoding="utf-8")
         outputFile = open(self.outputPath, "w", encoding="utf-8")
-
+        
+        #TODO Ne svidja mi se ovo
+        foundTitle = foundAuthor = foundDate = False
         for line in templateFile:
+            if not foundTitle and"...title..." in line:
+                if self.projConfig["title"].strip() == "": continue
+                line = line.replace("...title...", self.projConfig["title"])
+                foundTitle = True
+            if not foundAuthor and"...author..." in line:
+                line = line.replace("...author...", self.projConfig["author"])
+                foundAuthor = True
+            if not foundDate and"...date..." in line:
+                line = line.replace("...date...", self.projConfig["date"])
+                foundDate = True
+            if not foundTitle and "\\maketitle" in line:
+                continue
             if indicator in line:
                 break
             outputFile.write(line)

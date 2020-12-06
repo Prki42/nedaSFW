@@ -7,7 +7,7 @@ Tool made for automating 5 minutes of the monotonous activity when doing SQL hom
 - Run `python -m pip install -r requirements.txt` to install all dependencies
 - Use `python nedaSFW.py --help` to see the help message
 
-## Database config format
+## Database config
 Script reads the configuration from file `db_config.json` in a working directory if flag `--db` (`-d`) is set and if not, user is prompted to enter credentials and `db_config.json` will be created in the working directory.
 
 `db_config.json`:
@@ -17,6 +17,18 @@ Script reads the configuration from file `db_config.json` in a working directory
     "user": "USER",
     "password": "USER_PASSWORD",
     "database": "DATABASE"
+}
+```
+
+## Project config
+If `--projectConfig` (`-p`) flag is omitted user will be prompted to enter title, author and date values which will be used for LaTeX and will be saved in `proj_config.json`. When `-p` flag is used script looks for `proj_config.json` file in the working directory.
+
+`proj_config.json`:
+```json
+{
+    "title": "TITLE",
+    "date": "DECEMBER 2020",
+    "author": "YOUR NAME"
 }
 ```
 
@@ -47,17 +59,17 @@ If `--compilePDF` (`-c`) flag is used when running `generate` command and `pdfla
 ## Usage example
 **-t option in generate command still not *(completely)* usable**
 
-Generate .tex output and `db_config.json`
+Generate .tex output, `db_config.json` and `proj_config.json`
 ```
 nedaSFW generate -s sqlFile.sql -o texFile.tex
 ```
 
-Generate .tex output and use already created `db_config.json`
+Generate .tex output and use already created `db_config.json` and `proj_config.json`
 ```
-nedaSFW generate -s sqlFile.sql -o texFile.tex -d
+nedaSFW generate -s sqlFile.sql -o texFile.tex -d -p
 ```
 
 Same as above, but .pdf is also generated
 ```
-nedaSFW generate -s sqlFile.sql -o texFile.tex -d -c
+nedaSFW generate -s sqlFile.sql -o texFile.tex -d -p -c
 ```
