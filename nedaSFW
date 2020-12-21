@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python ${BASH_SOURCE%/*}/src/nedaSFW.py $@
