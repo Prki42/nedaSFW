@@ -53,6 +53,14 @@ Create a directory somwhere on your computer and copy `nedaSFW.bat` there. In `n
 with path to `src/nedaSFW.py` script on your computer.
 Finally, edit PATH environmental variable and add folder containing `nedaSFW.bat`. Now script can be used by calling `nedaSFW` from cmd or Powershell from any directory.
 
+## Adding script to PATH on Linux
+Add cloned folder to your path by appending to your `.bashrc` the following:
+```
+export PATH=$PATH:<path/to/nedaSFW>
+```
+
+Script is now executable from everywhere on the system by executing `nedaSFW`
+
 ## Compile to .pdf when generating .tex
 If `--compilePDF` (`-c`) flag is used when running `generate` command and `pdflatex` is installed .pdf will be generated.
 
