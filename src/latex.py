@@ -15,7 +15,6 @@ class LatexCreator:
         queryBuffer = ""
         for line in sqlFile:
             line = line.strip()
-            print(line)
             if line.isspace() : continue
             if line.startswith("#"):
                 currNum = line[1:].strip()
