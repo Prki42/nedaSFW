@@ -14,13 +14,14 @@ class LatexCreator:
         currNum = ""
         queryBuffer = ""
         for line in sqlFile:
-            line = line.lstrip()
+            line = line.strip()
+            print(line)
             if line.isspace() : continue
             if line.startswith("#"):
                 currNum = line[1:].strip()
                 continue
-            queryBuffer += line
-            if line.endswith(";\n") or line.endswith(";"):
+            queryBuffer += line + "\n"
+            if line.endswith(";\n") or line.endswith(";") or line.endswith(";\r\n"):
                 queryDict[currNum] = queryBuffer
                 queryBuffer = ""
         return queryDict

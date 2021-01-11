@@ -59,7 +59,7 @@ Add cloned folder to your path by appending to your `.bashrc` the following:
 export PATH=$PATH:<path/to/nedaSFW>
 ```
 
-Script is now executable from everywhere on the system by executing `nedaSFW`
+Script is now executable from everywhere on the system by executing `nedaSFW`.
 
 ## Compile to .pdf when generating .tex
 If `--compilePDF` (`-c`) flag is used when running `generate` command and `pdflatex` is installed .pdf will be generated.
